@@ -4,25 +4,37 @@
 from itertools import groupby
 from operator import itemgetter
 import sys
+import csv
 
 def read_mapper_output(file, separator='\t'):
     for line in file:
-        yield line.rstrip().split(separator, 1)
+        yield line.strip().split(separator, 1)
 
 def main(separator='\t'):
     # input comes from STDIN (standard input)
     data = read_mapper_output(sys.stdin, separator=separator)
-    # groupby groups multiple word-count pairs by word,
-    # and creates an iterator that returns consecutive keys and their group:
-    #   current_word - string containing a word (the key)
-    #   group - iterator yielding all ["<current_word>", "<count>"] items
-    for current_word, group in groupby(data, itemgetter(0)):
+    # convert count (currently a string) to int
+    word2count = {}
+    for current_word, count in data:
+        #print(current_word,count)
         try:
-            total_count = sum(int(count) for current_word, count in group)
-            print("%s%s%d" % (current_word, separator, total_count))
+            count = int(count)
+            word2count[current_word] = word2count.get(current_word, 0) + count
         except ValueError:
-            # count was not a number, so silently discard this item
+            # count was not a number, so silently
+            # ignore/discard this line
             pass
+    # sort the words lexigraphically;
+    # this step is NOT required, we just do it so that our
+    # final output will look more like the official Hadoop
+    # word count examples
+    sorted_word2count = sorted(word2count.items(), key=itemgetter(1),reverse=True)
+    # write the results to STDOUT (standard output)
+    output = csv.writer(open("wordcount.csv", "w"))
+    output.writerow(('Words', 'Counts'))
+    for word, count in sorted_word2count:
+        output.writerow([word, count])
+
 
 if __name__ == "__main__":
     main()
