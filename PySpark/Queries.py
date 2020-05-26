@@ -60,3 +60,14 @@ class SparkQuery:
         total_avg_idle_hour = df_avg_hours.select(avg('avg_hour')).collect()[0][0]
         lowest_idle_users = df_avg_hours.filter(df_avg_hours['avg_hour'] < total_avg_idle_hour).select('user_name')
         return lowest_idle_users
+
+    def late_commers_user(self, df):
+        '''
+        Find all user who comes late means after 10:00:00. Count ecach user how many time come late. 
+        '''
+        late_time = '10:00:00'
+        df_start = df.drop('working_hour','end_time', 'idle_time')
+        df_start = df_start.withColumn('start_time',sqlFun.from_unixtime(sqlFun.unix_timestamp(df_start.start_time),'hh:mm:ss'))
+        late_commers = df_start.filter(sqlFun.col('start_time') > late_time)
+        late_user_count = late_commers.groupBy('user_name').count()
+        return late_user_count
