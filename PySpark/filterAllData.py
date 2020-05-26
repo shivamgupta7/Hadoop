@@ -115,3 +115,17 @@ def saveAtHDFS(df, location):
         df.repartition(1).write.csv('hdfs://{0}'.format(location), header='true')
     except Exception as err:
         print(err)
+
+def saveAtMySQL(df,database,table,userName,paswd):
+    '''
+    Save the dataframe into the MySQL table.
+    '''
+    try:
+        df.write.format('jdbc').options(
+              url = 'jdbc:mysql://localhost:3306/' + database,
+              driver = 'com.mysql.jdbc.Driver',
+              dbtable = table,
+              user = userName,
+              password = paswd).mode('append').save()
+    except Exception as err:
+        print(err)
