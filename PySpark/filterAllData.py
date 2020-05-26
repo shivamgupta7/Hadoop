@@ -3,6 +3,7 @@ from pyspark.sql import SQLContext, Row
 import pyspark.sql.functions as sqlFun
 import subprocess
 from pyspark.sql.types import *
+sqlContext = SQLContext(sc)
 
 def show_files(path):
     '''
@@ -25,3 +26,18 @@ def read_file(path,header,inferSchema):
         return df
     except Exception as err:
         print(err)
+
+def cal_idle_hour(detail,users_data):
+    '''
+    Calculate idle hours. If user do not move mouse and press keyboard in 30 mins or more.
+    '''
+    global count_idle
+    if detail.keyboard == 0 and detail.mouse == 0:
+        count_idle += 1
+    else:
+        count_idle = 0
+    if count_idle >= 5:
+        if count_idle == 5:
+            users_data[detail.user_name]['idle_time'] = users_data[detail.user_name].get('idle_time') + dt.timedelta(0, 1500)
+        else:
+            users_data[detail.user_name]['idle_time'] = users_data[detail.user_name].get('idle_time') + dt.timedelta(0, 300)
