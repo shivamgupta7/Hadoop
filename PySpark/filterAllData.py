@@ -129,3 +129,22 @@ def saveAtMySQL(df,database,table,userName,paswd):
               password = paswd).mode('append').save()
     except Exception as err:
         print(err)
+
+def main():
+    directory = '/user/spark-file/input/'
+    start_timing = ' 08:30:00'
+    end_timing = ' 19:30:00'
+    initial_time = ' 00:00:00'
+    sqlContext = SQLContext(sc)
+    schema = StructType([
+        StructField("user_name", StringType(),True),
+        StructField("start_time", TimestampType(),True),
+        StructField("end_time", TimestampType(),True),
+        StructField("idle_time", TimestampType(),True),
+        StructField("working_hour", TimestampType(),True)])
+    total_log = sqlContext.createDataFrame(sc.emptyRDD(), schema)
+    usr_log = complete_operation(directory,start_timing,end_timing,initial_time,total_log)
+    saveAtHDFS(usr_log, '/user/spark-file/output')
+
+if __name__ == "__main__":
+    main()
