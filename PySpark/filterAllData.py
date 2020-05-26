@@ -1,8 +1,10 @@
 import datetime as dt
+from pyspark import SparkContext
 from pyspark.sql import SQLContext, Row
 import pyspark.sql.functions as sqlFun
 import subprocess
 from pyspark.sql.types import *
+sc = SparkContext.getOrCreate()
 sqlContext = SQLContext(sc)
 
 def show_files(path):
@@ -89,7 +91,7 @@ def complete_operation(directory, start_timing, end_timing, initial_time, df_tot
                         cal_idle_hour(row,users_data)
             # print('Done! Idle hour.')
             data_rows_idle = [Row(**{'user_name': user, **logs}) for user,logs in users_data.items()]
-            idleTime = spark.createDataFrame(data_rows_idle).select('user_name', 'idle_time')
+            idleTime = sqlContext.createDataFrame(data_rows_idle).select('user_name', 'idle_time')
             # print(idleTime.show(5))
             data_df = idleTime.join(startTime, on=['user_name'], how='inner').join(endTime, on=['user_name'], how='inner')
             # data_df.show(5)
@@ -97,7 +99,7 @@ def complete_operation(directory, start_timing, end_timing, initial_time, df_tot
                 cal_working_hours(row, date, initial_time,users_data)
             # print('Done! Working hour.')
             data_as_rows = [Row(**{'user_name': user, **logs}) for user,logs in users_data.items()]
-            data_final = spark.createDataFrame(data_as_rows).select('user_name', 'start_time', 'end_time', 'idle_time', 'working_hour')
+            data_final = sqlContext.createDataFrame(data_as_rows).select('user_name', 'start_time', 'end_time', 'idle_time', 'working_hour')
             # data_final.show(5)
             print('Done '+ date)
             df_total = df_total.unionAll(data_final)
