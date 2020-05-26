@@ -71,3 +71,11 @@ class SparkQuery:
         late_commers = df_start.filter(sqlFun.col('start_time') > late_time)
         late_user_count = late_commers.groupBy('user_name').count()
         return late_user_count
+
+    def leavesAndPresent(self, df, working_day=4):
+        '''
+        Find each user leaves and present in total working day.
+        '''
+        df_present = df.groupBy('user_name').agg(sqlFun.count('user_name').alias('present'))
+        df_leave_present = df_present.withColumn('leave', working_day - df_present.present)
+        return df_leave_present
