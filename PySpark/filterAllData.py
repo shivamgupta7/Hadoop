@@ -41,3 +41,12 @@ def cal_idle_hour(detail,users_data):
             users_data[detail.user_name]['idle_time'] = users_data[detail.user_name].get('idle_time') + dt.timedelta(0, 1500)
         else:
             users_data[detail.user_name]['idle_time'] = users_data[detail.user_name].get('idle_time') + dt.timedelta(0, 300)
+
+def cal_working_hours(details,date,initial_time,users_data):
+    '''
+    Calculate working hours. After cal start_time, end_time and idle_time then find working hour = (end_time -start_time) - idle_time
+    '''
+    delta = (dt.datetime.strptime(date + initial_time, '%Y-%m-%d %H:%M:%S') + (details.end_time - details.start_time)) - details.idle_time
+    users_data[details.user_name]['working_hour'] = dt.datetime.strptime(date + initial_time, '%Y-%m-%d %H:%M:%S') + delta
+    users_data[details.user_name]['start_time'] = details.start_time
+    users_data[details.user_name]['end_time'] = details.end_time
