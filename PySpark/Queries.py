@@ -79,3 +79,33 @@ class SparkQuery:
         df_present = df.groupBy('user_name').agg(sqlFun.count('user_name').alias('present'))
         df_leave_present = df_present.withColumn('leave', working_day - df_present.present)
         return df_leave_present
+
+def start_program(obj, df):
+    # displaying main menu
+    print('''-----------Query Menu-----------
+        Enter 1. To find highest average working user
+        Enter 2. To find lowest average working user
+        Enter 3. To find highest average idle user
+        Enter 4. To find lowest average idle user
+        Enter 5. To find late commers user
+        Enter 6. To find leaves and presents in working day for each user
+        Enter 7. For Exit
+        ''')
+    try:
+        choice = int(input("Enter your choice: "))
+    except Exception as e:  # handling the exception for bad input
+        print(e, "\n!!! Invalid Input !!!\n")
+    try:
+        switcher = {
+            1 : obj.high_avg_working_users,
+            2 : obj.lowest_avg_working_user,
+            3 : obj.high_avg_idle_user,
+            4 : obj.lowest_avg_idle_user,
+            5 : obj.late_commers_user,
+            6 : obj.leavesAndPresent,
+            7 : exit()
+        }
+        func = switcher.get(choice, lambda: print('\nInvalid choice please select correct options.'))
+        return func(df)
+    except Exception as e:
+        print("\n",e)
