@@ -15,3 +15,13 @@ def show_files(path):
         # print(path)
         paths.append(path)
     return paths
+
+def read_file(path,header,inferSchema):
+    '''
+    Reading file from HDFS.
+    '''
+    try:
+        df = sqlContext.read.csv('hdfs://{0}'.format(path),header = header, inferSchema = inferSchema)
+        return df
+    except Exception as err:
+        print(err)
