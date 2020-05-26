@@ -109,3 +109,21 @@ def start_program(obj, df):
         return func(df)
     except Exception as e:
         print("\n",e)
+
+def main():
+    #  Read csv file from hdfs server
+    input_path = '/user/spark-file/output'
+    output_path = '/user/spark-file/query-output'
+    df_log = read_file(input_path,header=True, inferSchema = True)
+    print('Rows : ',df_log.count(), 'Columns : ',len(df_log.columns))    # total no of row and column
+    obj = SparkQuery()
+    output = start_program(obj, df_log)
+    saveAtHDFS(output, output_path)
+    options = input('\nDo you want to continue?[y/n]: ')
+    if options.lower() == 'y':
+        main()
+    else:
+        exit()
+
+if __name__ == "__main__":
+    main()
