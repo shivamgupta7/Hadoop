@@ -106,3 +106,12 @@ def complete_operation(directory, start_timing, end_timing, initial_time, df_tot
         return df_total
     except Exception as err:
         print(err)
+
+def saveAtHDFS(df, location):
+    '''
+    Save data frame into csv file.
+    '''
+    try:
+        df.repartition(1).write.csv('hdfs://{0}'.format(location), header='true')
+    except Exception as err:
+        print(err)
