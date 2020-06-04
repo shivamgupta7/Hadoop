@@ -1,0 +1,7 @@
+<coordinator-app name="MY_APP" frequency="10 * * * *" start="2020-05-04T02:05Z" end="2020-05-04T02:30Z" timezone="UTC" xmlns="uri:oozie:coordinator::0.5">
+   <action>
+      <workflow>
+         <app-path>${workflowPath}</app-path>
+      </workflow>
+   </action>
+</coordinator-app>
