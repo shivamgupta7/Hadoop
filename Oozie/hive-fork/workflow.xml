@@ -1,0 +1,57 @@
+<workflow-app xmlns = "uri:oozie:workflow:0.4" name = "simple-Workflow">
+   <start to = "Create_External_Table" />
+
+   <!—Step 1 -->
+   <start to = "fork_node" />
+   
+   <fork name = "fork_node">
+      <path start = "Create_External_Table"/>
+      <path start = "Create_orc_Table"/>
+   </fork>
+   
+   <action name = "Create_External_Table">
+      <hive xmlns = "uri:oozie:hive-action:0.4">
+         <job-tracker>${jobTracker}</job-tracker>
+         <name-node>${nameNode}</name-node>
+         <script>${nameNode}/user/${wf:user()}/${examplesRoot}/app/hive/script/external.hive</script>
+      </hive>
+		
+      <ok to = "join_node" />
+      <error to = "kill_job" />
+   </action>
+
+   <!—Step 2 -->
+   
+   <action name = "Create_orc_Table">
+      <hive xmlns = "uri:oozie:hive-action:0.4">
+         <job-tracker>${jobTracker}</job-tracker>
+         <name-node>${nameNode}</name-node>
+         <script>${nameNode}/user/${wf:user()}/${examplesRoot}/app/hive/script/orc.hive</script>
+      </hive>
+		
+      <ok to = "join_node" />
+      <error to = "kill_job" />
+   </action>
+
+   <!—Step 3 -->
+   <join name = "join_node" to = "Insert_into_Table"/>
+      
+   <action name = "Insert_into_Table">
+      <hive xmlns = "uri:oozie:hive-action:0.4">
+         <job-tracker>${jobTracker}</job-tracker>
+         <name-node>${nameNode}</name-node>
+         <script>${nameNode}/user/${wf:user()}/${examplesRoot}/app/hive/script/Copydata.hive</script>
+         <param>${database_name}</param>
+      </hive>
+		
+      <ok to = "end" />
+      <error to = "kill_job" />
+   </action>
+   
+   <kill name = "kill_job">
+      <message>Job failed</message>
+   </kill>
+	
+   <end name = "end" />
+
+</workflow-app>
